@@ -23,10 +23,10 @@
 
 ***
 
-#使用
-1.直接下载release的jar包和sql文件 
-2.导入sql文件
-3.以 Java -jar xxx.jar --ip=局域网ip即可 
-4.如果对数据库链接名字密码不满意也可以另外在args里指定 
+# 使用
+1. 直接下载release的jar包和sql文件 
+2. 导入sql文件
+3. 以 Java -jar xxx.jar --ip=局域网ip即可 
+4. 如果对数据库链接名字密码不满意也可以另外在args里指定 
 
-#插件 
+# 插件 

@@ -36,7 +36,7 @@ public class ResourceAdpater implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         hardDeviceMapper.findAll().forEach((value)->{
-            registry.addResourceHandler(String.format("%s/**", value.getCustomName())).addResourceLocations(String.format("file:%s\\", value.getFolderName()));
+            registry.addResourceHandler(String.format("%s/**", value.getCustomName())).addResourceLocations(String.format("file:%s/", value.getFolderName()));
         });
     }
 }

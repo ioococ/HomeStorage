@@ -192,7 +192,7 @@ public class FileServiceImpl implements FilesService {
         String ext = file.getSelfName().substring(file.getSelfName().lastIndexOf(".") + 1);
         String fileName = FilesUtil.getCurrentNameWithExt("." + ext);
 
-        java.io.File dst = new java.io.File(hardDiskDevice.getFolderName() + "\\" + fileName);
+        java.io.File dst = new java.io.File(hardDiskDevice.getFolderName() + "/" + fileName);
         tempFile.transferTo(dst);
         OriginFile originFile = new OriginFile();
         originFile.setFileName(fileName);

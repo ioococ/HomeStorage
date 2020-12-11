@@ -1,5 +1,7 @@
 package cn.j.netstorage.Config;
 
+import cn.j.netstorage.Entity.User.Permission;
+import cn.j.netstorage.Entity.User.Role;
 import cn.j.netstorage.Entity.User.User;
 import cn.j.netstorage.Service.UserService;
 import org.apache.shiro.authc.*;
@@ -13,6 +15,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 public class ShiroRealm extends AuthorizingRealm {
@@ -24,8 +29,20 @@ public class ShiroRealm extends AuthorizingRealm {
         if (principalCollection.getPrimaryPrincipal() == null)
             return null;
         SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
-        userService.getRole(principalCollection.getPrimaryPrincipal().toString());
-//        simpleAuthorizationInfo.setStringPermissions(permissionSet);
+
+        Set<Role> set=userService.getRole(principalCollection.getPrimaryPrincipal().toString());
+        Set<String> stringSet=new HashSet<>();
+        Set<String> permissions=new HashSet<>();
+        for (Role s:set){
+            stringSet.add(s.getName());
+            for (Permission permission:s.getPermission()) {
+                permissions.add(permission.getName());
+            }
+        }
+        System.out.println(stringSet.size());
+        System.out.println(permissions.size());
+        simpleAuthorizationInfo.setRoles(stringSet);
+        simpleAuthorizationInfo.setStringPermissions(permissions);
         return simpleAuthorizationInfo;
     }
 

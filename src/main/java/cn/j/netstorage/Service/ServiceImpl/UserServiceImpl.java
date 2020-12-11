@@ -2,6 +2,7 @@ package cn.j.netstorage.Service.ServiceImpl;
 
 import cn.j.netstorage.Entity.DTO.UserDTO;
 import cn.j.netstorage.Entity.Token;
+import cn.j.netstorage.Entity.User.Permission;
 import cn.j.netstorage.Entity.User.Role;
 import cn.j.netstorage.Entity.User.User;
 import cn.j.netstorage.Entity.Vo.UserVo;
@@ -30,7 +31,7 @@ public class UserServiceImpl implements UserService {
     PermissionMapper permissionMapper;
     @Autowired
     RoleMapper roleMapper;
-@Autowired
+    @Autowired
     TokenMapper tokenMapper;
 
     /**
@@ -67,10 +68,10 @@ public class UserServiceImpl implements UserService {
     public Boolean Register(User user) {
         user.Md5Hash();
         user = userMapper.save(user);
-        if (user.getUid() != 0){
-            Token token=new Token(user.getUid(),UUID.randomUUID().toString());
+        if (user.getUid() != 0) {
+            Token token = new Token(user.getUid(), UUID.randomUUID().toString());
             token = tokenMapper.save(token);
-            return token.getId()!=0&&user.getUid()!=0;
+            return token.getId() != 0 && user.getUid() != 0;
         }
         return false;
     }
@@ -102,7 +103,7 @@ public class UserServiceImpl implements UserService {
         return getUser(tokenMapper.findByToken(token.getToken()).getUser());
     }
 
-    public User getUser(Long id){
+    public User getUser(Long id) {
         return userMapper.findById(id).get();
     }
 
@@ -138,13 +139,28 @@ public class UserServiceImpl implements UserService {
      * @return 用户的角色组
      */
     @Override
-    public List<Role> getRole(Object token) {
-        return Collections.singletonList(getUser(token).getRole());
+    public Set<Role> getRole(Object token) {
+        return (getUser(token).getRole());
+    }
+
+    @Override
+    public Role role(Long id) {
+        return roleMapper.findById(id).get();
     }
 
     @Override
     public Boolean addRole(Role role) {
         return roleMapper.save(role).getRid() > 0;
+    }
+
+    @Override
+    public Long savePermission(Permission permission) {
+        return permissionMapper.save(permission).getPid();
+    }
+
+    @Override
+    public Long saveUser(User user) {
+        return userMapper.save(user).getUid();
     }
 
     @Override
@@ -164,8 +180,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDTO> search(UserVo userVo) {
-        List<UserDTO> userDTOS=new ArrayList<>();
-        userMapper.findAllByNickNameContaining(userVo.getNickName()).forEach((value)->userDTOS.add(new UserDTO(value)));
+        List<UserDTO> userDTOS = new ArrayList<>();
+        userMapper.findAllByNickNameContaining(userVo.getNickName()).forEach((value) -> userDTOS.add(new UserDTO(value)));
         return userDTOS;
     }
 }

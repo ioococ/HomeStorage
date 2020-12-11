@@ -1,5 +1,6 @@
 package cn.j.netstorage.Entity.DTO;
 
+import cn.j.netstorage.Entity.User.Role;
 import cn.j.netstorage.Entity.User.User;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +16,7 @@ public class UserDTO {
 
     private String name;
     private String email;
-    private String roleName;
+    private List<String> roleName;
 
     public UserDTO() {
 
@@ -44,7 +45,11 @@ public class UserDTO {
     public UserDTO(User user) {
         this.uid = user.getUid();
         this.email = user.getEmailAccount();
-        this.roleName = user.getRole().getName();
+        List<String> strings=new ArrayList<>();
+        for (Role role:user.getRole()){
+            strings.add(role.getName());
+        }
+        this.roleName=strings;
         this.name = user.getNickName();
     }
 

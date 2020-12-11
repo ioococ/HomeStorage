@@ -26,12 +26,11 @@ public class User {
     private String nickName;
     @Column(name = "password", nullable = false,length = 255)
     private String password;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "role")
-    private Role role;
+    private Set<Role> role;
     @Column(name = "createDate", nullable = false)
     private Long createDate;
-
 
     public void Md5Hash(){
         this.password=new Md5Hash(this.password, emailAccount, 1024).toHex();

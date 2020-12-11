@@ -5,12 +5,13 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Setter
 @Getter
 @ToString
-@Table(name = "t_role",uniqueConstraints = {@UniqueConstraint(columnNames="name")})
+@Table(name = "t_role")
 public class Role {
 
     @Id
@@ -19,6 +20,10 @@ public class Role {
 
     @Column(name = "name", length = 20, nullable = false)
     private String name;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "permission")
+    private Set<Permission> permission;
 
     @Column(name = "status")
     private Boolean status;

@@ -2,6 +2,7 @@ package cn.j.netstorage.Service;
 
 import cn.j.netstorage.Entity.DTO.UserDTO;
 import cn.j.netstorage.Entity.Token;
+import cn.j.netstorage.Entity.User.Permission;
 import cn.j.netstorage.Entity.User.Role;
 import cn.j.netstorage.Entity.User.User;
 import cn.j.netstorage.Entity.Vo.UserVo;
@@ -27,9 +28,15 @@ public interface UserService {
 
     Set<String> getPermission(Object token);
 
-    List<Role> getRole(Object token);
+    Set<Role> getRole(Object token);
+
+    Role role(Long id);
 
     Boolean addRole(Role role);
+
+    Long savePermission(Permission permission);
+
+    Long saveUser(User user);
 
     List<Role> roles();
 

@@ -342,6 +342,7 @@ public class FileServiceImpl implements FilesService {
 
     @Override
     public Files getByType(User user, Type type) {
+        type.getType();
         return null;
     }
 

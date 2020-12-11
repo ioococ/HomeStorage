@@ -14,8 +14,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 
 public class NetstorageApplication {
-
-
     public static void main(String[] args) {
         SpringApplication.run(NetstorageApplication.class, args);
     }

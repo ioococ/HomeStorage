@@ -17,6 +17,7 @@ import cn.j.netstorage.tool.StatusCode;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.UnauthenticatedException;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -61,6 +62,7 @@ public class FileController {
     }
 
     @PostMapping("/uploadFile")
+    @RequiresPermissions("上传")
     public ResultBuilder<Boolean> UploadFile(@RequestParam("upload") MultipartFile multipartFile, @RequestParam("parentName") String parentName) {
         FilesDTO filesDTO = new FilesDTO();
         UserDTO userDTO = new UserDTO(userService.getUser(SecurityUtils.getSubject().getPrincipal().toString()));

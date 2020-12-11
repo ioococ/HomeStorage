@@ -22,7 +22,7 @@ public class HelloController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ResultBuilder<Boolean> login(HttpServletResponse response, @Validated @RequestBody UserVo user) {
+    public ResultBuilder<Boolean> login(HttpServletResponse response, @RequestBody UserVo user) {
 //        String email, String password, Boolean rememberMe
         Boolean result = userService.Login(user.getEmail(), user.getPassword(), user.getRememberMe());
         if (result) {

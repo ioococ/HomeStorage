@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Setter
@@ -16,6 +18,5 @@ public class Permission {
 
     @Column(name = "name", nullable = false, length = 20)
     private String name;
-    @Column
-    private long rid;
+
 }

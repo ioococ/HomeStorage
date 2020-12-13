@@ -16,6 +16,7 @@ public class FilesVersionDTO {
     private Double version;
     private Date updateTime;
     private List<FilesVersionDTO> children;
+    private String desc_;
 
     public FilesVersionDTO(){
 
@@ -23,6 +24,7 @@ public class FilesVersionDTO {
 
     public FilesVersionDTO ConvertFileVersionDTO(FilesVersion version){
         FilesVersionDTO versionDTO=new FilesVersionDTO();
+        versionDTO.desc_=version.getDesc_();
         versionDTO.GroupId=version.getGroupId();
         versionDTO.GroupName=version.getGroupName();
         versionDTO.updateTime=version.getUpdateDate();

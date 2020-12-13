@@ -4,6 +4,7 @@ import cn.j.netstorage.Entity.DTO.FilesVersionDTO;
 import cn.j.netstorage.Entity.File.FilesVersion;
 import cn.j.netstorage.Entity.File.HardDiskDevice;
 import cn.j.netstorage.Entity.File.OriginFile;
+import cn.j.netstorage.Entity.User.User;
 import cn.j.netstorage.Mapper.FilesVersionMapper;
 import cn.j.netstorage.Mapper.HardDeviceMapper;
 import cn.j.netstorage.Mapper.OriginFileMapper;
@@ -12,8 +13,11 @@ import cn.j.netstorage.tool.FilesUtil;
 import cn.j.netstorage.tool.HashCodeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import sun.plugin.cache.FileVersion;
 
 import java.io.File;
 import java.io.IOException;
@@ -76,7 +80,6 @@ public class FilesVersionServiceImpl implements FilesVersionService {
             originFile.setHardDiskDevice(Collections.singleton(hardDiskDevice));
             originFile.setSize(multipartFile.getSize());
             originFile=originFileMapper.save(originFile);
-
             multipartFile.transferTo(new File(hardDiskDevice.getFolderName()+"/"+originName));
 
             filesVersion.setUpdateDate(new Date());
@@ -94,4 +97,20 @@ public class FilesVersionServiceImpl implements FilesVersionService {
         return filesVersionMapper.findById(GroupId).orElse(null);
     }
 
+    @Override
+    public List<FilesVersionDTO> GetFileVersionByGroupName(User user, String GroupName) {
+        FilesVersion filesVersion=new FilesVersion();
+        filesVersion.setGroupName(GroupName);
+
+        Example<FilesVersion> example = Example.of(
+                filesVersion,
+                ExampleMatcher.matching().withIgnorePaths("group_id", "version", "update_date", "desc_"));
+        List<FilesVersion> filesVersions=filesVersionMapper.findAll(example);
+        List<FilesVersionDTO> filesVersionDTOS=new ArrayList<>();
+
+        for (FilesVersion version : filesVersions) {
+            filesVersionDTOS.add(new FilesVersionDTO().ConvertFileVersionDTO(version));
+        }
+        return filesVersionDTOS;
+    }
 }

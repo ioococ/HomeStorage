@@ -216,10 +216,7 @@ public class FileServiceImpl implements FilesService {
 
     @Override
     public Boolean uploadFile(Files file, String preSuffix, MultipartFile tempFile) {
-        if (file == null) {
-            return false;
-        }
-        if (tempFile == null) {
+        if (file == null&&tempFile==null) {
             return false;
         }
         try {

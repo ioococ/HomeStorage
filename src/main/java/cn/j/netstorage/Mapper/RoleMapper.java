@@ -4,4 +4,5 @@ import cn.j.netstorage.Entity.User.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RoleMapper extends JpaRepository<Role,Long> {
+
 }

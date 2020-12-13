@@ -124,12 +124,17 @@ public class UserServiceImpl implements UserService {
     /**
      * 获取用户的权限
      *
-     * @param token Shiro的token
+     * @param
      * @return 用户的权限列表
      */
     @Override
-    public Set<String> getPermission(Object token) {
-        return null;
+    public Set<Permission> getPermission(Role role) {
+        return role.getPermission();
+    }
+
+    @Override
+    public List<Permission> getAllPermission() {
+        return permissionMapper.findAll();
     }
 
     /**
@@ -141,6 +146,32 @@ public class UserServiceImpl implements UserService {
     @Override
     public Set<Role> getRole(Object token) {
         return (getUser(token).getRole());
+    }
+
+    @Override
+    public Boolean changePermission(Long id, List<Integer> pids) {
+        Role role=role(id);
+        List<Long> longs=new ArrayList<>();
+        for (Integer pid : pids) {
+            longs.add(Long.valueOf(pid));
+        }
+        List<Permission> permissions=permissionMapper.findAllById(longs);
+        role.setPermission(new HashSet<>(permissions));
+        return addRole(role);
+    }
+
+    @Override
+    public Boolean changeUserPermission(Long id, List<Integer> pids) {
+        try {
+            User user=getUser(id);
+            List<Role> roles=roles(pids);
+            user.setRole(new HashSet<>(roles));
+            userMapper.save(user);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -169,14 +200,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<Role> roles(List<Integer> rids) {
+        List<Long> longs=new ArrayList<>();
+        for (Integer pid : rids) {
+            longs.add(Long.valueOf(pid));
+        }
+        return roleMapper.findAllById(longs);
+    }
+
+    @Override
     public Boolean AlterRole(Role role) {
         return roleMapper.save(role).getRid() != 0;
     }
 
-    @Override
-    public Boolean delRole(Role role) {
-        return FilesUtil.delete(roleMapper, role);
-    }
+
+
 
     @Override
     public List<UserDTO> search(UserVo userVo) {

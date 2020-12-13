@@ -22,27 +22,35 @@ public interface UserService {
 
     User getUser(Token token);
 
+    User getUser(Long id);
+
     User getUser(String account, String password);
 
     List<UserDTO> getUsers();
 
-    Set<String> getPermission(Object token);
+    Set<Permission> getPermission(Role role);
+
+    List<Permission> getAllPermission();
 
     Set<Role> getRole(Object token);
+
+    Boolean changePermission(Long id, List<Integer> pids);
+
+    Boolean changeUserPermission(Long id, List<Integer> pids);
 
     Role role(Long id);
 
     Boolean addRole(Role role);
 
+    List<Role> roles();
+
+    List<Role> roles(List<Integer> rids);
+
     Long savePermission(Permission permission);
 
     Long saveUser(User user);
 
-    List<Role> roles();
-
     Boolean AlterRole(Role role);
-
-    Boolean delRole(Role role);
 
     List<UserDTO> search(UserVo userVo);
 }

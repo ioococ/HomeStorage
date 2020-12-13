@@ -24,7 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.*;
 
 @RestController
-@RequestMapping("/api/v1/FilesVersion")
+@RequestMapping("/v1/FilesVersion")
 @RequiresUser
 public class FilesVersionController {
     @Autowired
@@ -40,10 +40,17 @@ public class FilesVersionController {
         return new ResultBuilder<>(filesVersionService.filesVersionList(id), StatusCode.SUCCESS);
     }
 
+    @GetMapping("/FileVersion")
+    public ResultBuilder getOneFileVersion(String GroupName){
+        User user= userService.getUser(SecurityUtils.getSubject().getPrincipal().toString());
+        return new ResultBuilder<List<FilesVersionDTO>>(filesVersionService.GetFileVersionByGroupName(user,GroupName),StatusCode.SUCCESS);
+    }
+
     @PostMapping("/updateVersion")
     public ResultBuilder<Boolean> updateVersion(@RequestParam("upload") MultipartFile multipartFile, FilesVersion filesVersion) {
         User user = userService.getUser(SecurityUtils.getSubject().getPrincipal().toString());
         filesVersion.setUsers(Collections.singleton(user));
+        System.out.println(filesVersion.getDesc_());
         return new ResultBuilder<>(filesVersionService.add(filesVersion, multipartFile), StatusCode.SUCCESS);
     }
 

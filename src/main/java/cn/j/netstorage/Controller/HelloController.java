@@ -5,6 +5,7 @@ import cn.j.netstorage.Entity.Vo.UserVo;
 import cn.j.netstorage.Service.UserService;
 import cn.j.netstorage.tool.ResultBuilder;
 import cn.j.netstorage.tool.StatusCode;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/User")
+@RequestMapping("/User")
 public class HelloController {
 
     @Autowired
@@ -27,7 +28,7 @@ public class HelloController {
         Boolean result = userService.Login(user.getEmail(), user.getPassword(), user.getRememberMe());
         if (result) {
             Cookie cookie = new Cookie("nickName", userService.getUser(user.getEmail()).getNickName());
-            cookie.setMaxAge(259200);
+            cookie.setMaxAge(15*86400);
             cookie.setPath("/");
             response.addCookie(cookie);
         }

@@ -38,7 +38,7 @@ import java.util.*;
 
 @RestController
 @RequiresUser
-@RequestMapping("/api/disk/")
+@RequestMapping("/disk/")
 public class FileController {
 
     @Autowired
@@ -50,7 +50,8 @@ public class FileController {
     @Autowired
     private Aria2Service aria2Service;
 
-    @PostMapping("/createFolder")
+    @PostMapping("/uploadFolder")
+    @RequiresPermissions("上传")
     public ResultBuilder<Boolean> createFolder(@RequestBody FilesDTO filesDTO) {
         UserDTO userDTO = new UserDTO(userService.getUser(SecurityUtils.getSubject().getPrincipal().toString()));
         filesDTO.setIsDir(Files.is_dir);
@@ -135,7 +136,7 @@ public class FileController {
         Long id = userService.getUser(SecurityUtils.getSubject().getPrincipal().toString()).getUid();
         Files files = filesDTO.ConvertFiles();
         filesService.RenameFile(files);
-        return null;
+        return new ResultBuilder<>(StatusCode.SUCCESS);
     }
 
     @GetMapping("/getFile")

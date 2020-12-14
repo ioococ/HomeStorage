@@ -12,12 +12,10 @@ import cn.j.netstorage.Service.FilesVersionService;
 import cn.j.netstorage.tool.FilesUtil;
 import cn.j.netstorage.tool.HashCodeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import sun.plugin.cache.FileVersion;
 
 import java.io.File;
 import java.io.IOException;

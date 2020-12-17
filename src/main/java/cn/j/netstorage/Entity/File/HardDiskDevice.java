@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.io.File;
 
 
 @Setter
@@ -26,5 +27,10 @@ public class HardDiskDevice {
     Long Size;
     @Column
     String rules;
+
+
+    public File get(){
+        return new File(folderName);
+    }
 
 }

@@ -15,6 +15,10 @@ import java.util.List;
 
 
 public interface FilesService {
+
+
+    Boolean insertFile();
+
     List<FilesDTO> UserFile(String path,long uid);
 
     List<FilesDTO> UserFiles(String path, long uid,Boolean isDir);

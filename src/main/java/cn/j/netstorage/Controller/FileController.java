@@ -78,16 +78,6 @@ public class FileController {
         return new ResultBuilder<>(result, result ? StatusCode.SUCCESS : StatusCode.FALL);
     }
 
-    @PostMapping("/transferExistFiles")
-    public ResultBuilder transferExistFiles(@RequestBody TreeMap<String,Object> treeMap){
-
-//        首先转移文件 然后添加原始文件 然后插入文件数据库
-        if (treeMap.get("filePath")!=null){
-
-        }
-
-        return new ResultBuilder(StatusCode.SUCCESS);
-    }
 
     @PostMapping("/transferFile")
     public ResultBuilder<Boolean> transfer(@RequestBody TreeMap<String,String> treeMap){

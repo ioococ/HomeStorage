@@ -14,6 +14,7 @@ public class ResourceTmp {
     @Bean
     MultipartConfigElement multipartConfigElement() {
         MultipartConfigFactory factory = new MultipartConfigFactory();
+        System.out.println(baseDir);
         factory.setLocation(baseDir);
         return factory.createMultipartConfig();
     }

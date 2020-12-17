@@ -41,9 +41,14 @@ public class FileServiceImpl implements FilesService {
     OriginFileMapper originFileMapper;
 
     @Override
+    public Boolean insertFile() {
+        return null;
+    }
+
+    @Override
     public List<FilesDTO> UserFile(String path, long uid) {
-        List<FilesDTO> filesDTOS=UserFiles(path,uid,true);
-        filesDTOS.addAll(UserFiles(path,uid,false));
+        List<FilesDTO> filesDTOS = UserFiles(path, uid, true);
+        filesDTOS.addAll(UserFiles(path, uid, false));
         return filesDTOS;
     }
 
@@ -54,7 +59,7 @@ public class FileServiceImpl implements FilesService {
      * @return 文件夹和文件的混合列表
      */
     @Override
-    public List<FilesDTO> UserFiles(String path, long uid,Boolean isDir) {
+    public List<FilesDTO> UserFiles(String path, long uid, Boolean isDir) {
 
         Files files = new Files();
         files.setParentName(path);
@@ -63,8 +68,8 @@ public class FileServiceImpl implements FilesService {
         files.setUser(Collections.singletonList(user));
 
         List<FilesDTO> files1 = new ArrayList<>();
-        Short is_dir=isDir?Files.is_dir:Files.no_dir;
-        fileMapper.findAllByParentNameAndUser_uidAndIsDir(path, (uid),is_dir).forEach((value) -> {
+        Short is_dir = isDir ? Files.is_dir : Files.no_dir;
+        fileMapper.findAllByParentNameAndUser_uidAndIsDir(path, (uid), is_dir).forEach((value) -> {
             FilesDTO filesDTO = new FilesDTO(value);
             files1.add(filesDTO);
         });
@@ -194,6 +199,8 @@ public class FileServiceImpl implements FilesService {
 
         java.io.File dst = new java.io.File(hardDiskDevice.getFolderName() + "/" + fileName);
         tempFile.transferTo(dst);
+
+
         OriginFile originFile = new OriginFile();
         originFile.setFileName(fileName);
         String md5 = HashCodeUtil.getHashCode(dst);
@@ -201,33 +208,37 @@ public class FileServiceImpl implements FilesService {
         List<OriginFile> originFiles = checkUpload(md5);
 
         if (checkUpload(HashCodeUtil.getHashCode(dst)).size() >= 1) {
-            originFile = originFiles.get(0);
-        } else {
-            originFile = new OriginFile();
-            originFile.setFileName(fileName);
-            originFile.setMd5(md5);
-            originFile.setSize(tempFile.getSize());
-            originFile.setHardDiskDevice(Collections.singleton(hardDiskDevice));
-            originFile = originFileMapper.save(originFile);
+            return originFiles.get(0);
         }
+
+        originFile = new OriginFile();
+        originFile.setFileName(fileName);
+        originFile.setMd5(md5);
+        originFile.setSize(tempFile.getSize());
+        originFile.setHardDiskDevice(Collections.singleton(hardDiskDevice));
+        originFile = originFileMapper.save(originFile);
         return originFile;
     }
 
 
     @Override
     public Boolean uploadFile(Files file, String preSuffix, MultipartFile tempFile) {
-        if (file == null&&tempFile==null) {
+        if (file == null && tempFile == null) {
             return false;
         }
         try {
-            if (file.getIsDir()==Files.is_dir){
+            if (file.getIsDir() == Files.is_dir) {
                 file.setType(Type.Folder.getType());
-            }else {
+            } else {
                 Type type = Type.getInstance(FilesUtil.getExt(file.getSelfName()));
                 file.setType(type.getType());
             }
+
             List<HardDiskDevice> hardDiskDevices = hardDeviceMapper.findAll();
-            OriginFile originFile = file.getIsDir() == Files.is_dir ? insertFolder(file) : insertFiles(hardDiskDevices, file, tempFile);
+            OriginFile originFile =
+                    file.getIsDir() == Files.is_dir ?
+                            insertFolder(file) : insertFiles(hardDiskDevices, file, tempFile);
+
             if (originFile != null) {
                 file.setOriginFile(Collections.singleton(originFile));
                 file.setCreateDate(new Date());
@@ -235,7 +246,6 @@ public class FileServiceImpl implements FilesService {
             } else {
                 return false;
             }
-
             return file.getFid() != 0;
         } catch (IOException e) {
             e.printStackTrace();
@@ -344,9 +354,9 @@ public class FileServiceImpl implements FilesService {
     }
 
     @Override
-    public List<FilesDTO> searchFiles(FilesDTO filesDTO,User user) {
-        List<FilesDTO> filesDTOS=new ArrayList<>();
-        fileMapper.findAllBySelfNameContainingAndUserIs(filesDTO.getSelfName(),user).forEach((value)->filesDTOS.add(new FilesDTO(value)));
+    public List<FilesDTO> searchFiles(FilesDTO filesDTO, User user) {
+        List<FilesDTO> filesDTOS = new ArrayList<>();
+        fileMapper.findAllBySelfNameContainingAndUserIs(filesDTO.getSelfName(), user).forEach((value) -> filesDTOS.add(new FilesDTO(value)));
         return filesDTOS;
     }
 

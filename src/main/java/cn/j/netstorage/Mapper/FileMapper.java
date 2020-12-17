@@ -10,16 +10,21 @@ import javax.annotation.Resource;
 import java.util.List;
 
 
-public interface FileMapper extends JpaRepository<Files,Long> {
+public interface FileMapper extends JpaRepository<Files, Long> {
 
-    List<Files> findAllByParentNameAndUser_uidAndIsDir(String parentName,long uid,Short isDir);
+    List<Files> findAllByParentNameAndUser_uidAndIsDir(String parentName, long uid, Short isDir);
 
 
     Files findByParentNameAndAndUserAndAndSelfName(String parentName, User user, String selfName);
 
-    Integer deleteAllByFidIsOrParentNameIsLike(Long fid,String parentName);
+    Integer deleteAllByFidIsOrParentNameIsLike(Long fid, String parentName);
 
     Integer deleteByFid(Long fid);
 
-    List<Files> findAllBySelfNameContainingAndUserIs(String selfName,User user);
+    List<Files> findAllBySelfNameContainingAndUserIs(String selfName, User user);
+
+    List<Files> findAllBySelfNameAndUserAndParentName(String selfName, User user,String parentName);
+
+    List<Files> findAllBySelfNameLikeAndUserAndParentName(String selfName, User user,String parentName);
+
 }

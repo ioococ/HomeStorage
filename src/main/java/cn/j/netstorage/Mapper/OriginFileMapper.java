@@ -7,4 +7,6 @@ public interface OriginFileMapper extends JpaRepository<OriginFile,Long> {
 
     OriginFile getOriginFileByFileName(String FileName);
 
+    OriginFile findByMd5(String md5);
+
 }

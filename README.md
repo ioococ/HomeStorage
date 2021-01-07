@@ -31,7 +31,7 @@
 ``` Shell
 java -jar netstorage-0.0.1-SNAPSHOT.jar --ip=192.168.1.121 --server.tomcat.basedir=/mnts1/HomeStorage/ --tempDir=/mnts1/HomeStorage/temp/
 ```
-首先运行jar包 然后运行sql文件 然后把静态资源扔到nginx 设置反向代理,设置如下，浏览器输入http://{IP}
+首先运行jar包 以上参数参考自己的硬盘和局域网情况和数据库情况  然后运行sql文件 然后把静态资源扔到nginx 设置反向代理,设置如下，浏览器输入http://{IP}
 ```
 server {
     listen       80;

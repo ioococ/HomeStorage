@@ -3,6 +3,7 @@ package cn.j.netstorage.Service.ServiceImpl;
 import cn.j.netstorage.Entity.File.Files;
 import cn.j.netstorage.Entity.File.HardDiskDevice;
 import cn.j.netstorage.Entity.File.OriginFile;
+import cn.j.netstorage.Entity.Folder;
 import cn.j.netstorage.Entity.Type;
 import cn.j.netstorage.Entity.User.User;
 import cn.j.netstorage.Service.*;
@@ -35,7 +36,7 @@ public class UploadServiceImpl implements UploadService {
     @Override
     public Boolean common_upload(MultipartFile uploadFile, String storagePath, User user) {
         HardDiskDevice hardDiskDevice = hardDeviceService.get();
-        String path = hardDiskDevice.getFolderName() + "/" + uploadFile.getOriginalFilename();
+        String path = new File(hardDiskDevice.getFolderName() + "/" + uploadFile.getOriginalFilename()).getAbsolutePath();
         try {
             OriginFile originFile = originFileService.originFile(uploadFile, hardDiskDevice);
 
@@ -54,9 +55,7 @@ public class UploadServiceImpl implements UploadService {
 
             Files files = fileService2.file(finalName, originFile, storagePath, user);
             fileService2.save(files);
-
             if (files.getFid() == 0) return false;
-
         } catch (IOException e) {
             e.printStackTrace();
             return false;
@@ -65,10 +64,16 @@ public class UploadServiceImpl implements UploadService {
     }
 
     @Override
-    public Boolean slice_upload(MultipartFile file, String fileName, String dst, int currentIndex, User user) {
-        String name = fileName.substring(0, fileName.lastIndexOf(".")) + "_" + currentIndex + ".tmp";
+    public Boolean slice_upload(MultipartFile file, int size, String fileName, String dst, String storagePath, int currentIndex, User user) {
+        String tmpName = fileName + ".part" + currentIndex;
         try {
-            file.transferTo(new File(dst + name));
+            File part = new File(dst + tmpName);
+            if (!part.exists()) {
+                file.transferTo(part);
+            }
+            if (size == currentIndex) {
+                merge_upload(fileName, dst, storagePath, 1, size, user);
+            }
         } catch (IOException ex) {
             ex.printStackTrace();
             return false;
@@ -87,30 +92,41 @@ public class UploadServiceImpl implements UploadService {
         File newFile = new File(hardDiskDevice.getFolderName() + "/" +
                 +System.currentTimeMillis()
                 + fileName.substring(fileName.lastIndexOf(".")));
-
-        try (FileOutputStream outputStream = new FileOutputStream(newFile, true);) {
-            FileInputStream fileInputStream = null; //分片文件
-            byte[] byt = new byte[10 * 1024 * 1024];
-            int len;
-            for (int i = start; i < end; i++) {
-                fileInputStream = new FileInputStream(new File(
-                        diskPath + fileName.substring(0, fileName.lastIndexOf(".")) + "_" + i + ".tmp")
-                );
-
-                while ((len = fileInputStream.read(byt)) != -1) {
-                    outputStream.write(byt, 0, len);
-                }
-
-                fileInputStream.close();
+        if (start == end) {
+            File file = new File(
+                    diskPath + fileName + ".part" + start);
+            if (file.exists()) {
+                file.renameTo(newFile);
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } else {
+            try (FileOutputStream outputStream = new FileOutputStream(newFile, true);) {
+                FileInputStream fileInputStream = null; //分片文件
+                byte[] byt = new byte[10 * 1024 * 1024];
+                int len;
+                for (int i = start; i < end; i++) {
+                    fileInputStream = new FileInputStream(new File(
+                            diskPath + fileName + ".part" + i)
+                    );
+
+                    while ((len = fileInputStream.read(byt)) != -1) {
+                        outputStream.write(byt, 0, len);
+                    }
+
+                    fileInputStream.close();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
+            for (int i = start; i <= end; i++) {
+                File file = new File(
+                        diskPath + fileName + ".part" + i);
+                if (file.exists()) {
+                    file.delete();
+                }
+            }
         }
 
-        System.gc();
-        for (int i = start; i < end; i++) {
-            new File(diskPath + fileName.substring(0, fileName.lastIndexOf(".")) + "_" + i + ".tmp").delete();
-        }
 
         //OriginFile 插入
         OriginFile originFile = null;
@@ -123,8 +139,11 @@ public class UploadServiceImpl implements UploadService {
         originFile = originFileService.saveOriginFile(originFile);
 
         if (originFile.getOid() == 0) return false;
-
         //Files插入
+        Folder folder = fileService2.getFolder(user, storagePath);
+        if (folder != null) {
+            user = folder.getOriginUser().iterator().next();
+        }
         int count = fileService2.checkFilesCount(storagePath, fileName, user);
         String finalName = String.format("%s%s%s",
                 fileName.substring(0, fileName.lastIndexOf(".")),
@@ -135,9 +154,7 @@ public class UploadServiceImpl implements UploadService {
         Files files = fileService2.file(finalName, originFile, storagePath, user);
         fileService2.save(files);
 
-        if (files.getFid() == 0) return false;
-
-        return true;
+        return files.getFid() != 0;
     }
 
     @Override

@@ -40,4 +40,33 @@ public class HelloController {
         User user = new User();
         return new ResultBuilder<>(userService.Register(user), StatusCode.SUCCESS);
     }
+
+    @GetMapping("testThread")
+    public ResultBuilder<Boolean> test1(){
+        Thread thread= new Thread(new Runnable() {
+            /**
+             * When an object implementing interface <code>Runnable</code> is used
+             * to create a thread, starting the thread causes the object's
+             * <code>run</code> method to be called in that separately executing
+             * thread.
+             * <p>
+             * The general contract of the method <code>run</code> is that it may
+             * take any action whatsoever.
+             *
+             * @see Thread#run()
+             */
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(3000);
+                    System.out.println("hello");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    System.out.println("中断");
+                }
+            }
+        });
+        thread.start();
+        return new ResultBuilder<>(true,StatusCode.SUCCESS);
+    }
 }

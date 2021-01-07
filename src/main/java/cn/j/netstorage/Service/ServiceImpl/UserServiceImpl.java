@@ -49,7 +49,6 @@ public class UserServiceImpl implements UserService {
         UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken(
                 Email, password, rememberMe);
         try {
-            //传入subject
             subject.login(usernamePasswordToken);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -67,6 +66,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Boolean Register(User user) {
         user.Md5Hash();
+        user.setCreateDate(System.currentTimeMillis());
         user = userMapper.save(user);
         if (user.getUid() != 0) {
             Token token = new Token(user.getUid(), UUID.randomUUID().toString());
@@ -94,7 +94,6 @@ public class UserServiceImpl implements UserService {
         user.setEmailAccount(token.toString());
         Example<User> example = Example.of(user, ExampleMatcher.matching().withIgnorePaths("uid", "create_date", "nick_name", "role", "password"));
         Optional<User> list = userMapper.findOne(example);
-        System.out.println(list.get().toString());
         return list.get();
     }
 
@@ -212,9 +211,6 @@ public class UserServiceImpl implements UserService {
     public Boolean AlterRole(Role role) {
         return roleMapper.save(role).getRid() != 0;
     }
-
-
-
 
     @Override
     public List<UserDTO> search(UserVo userVo) {

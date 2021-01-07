@@ -23,6 +23,8 @@ public interface FilesService {
 
     List<FilesDTO> UserFiles(String path, long uid,Boolean isDir);
 
+    List<FilesDTO> UserFile(Long fid, long uid);
+
     Boolean deleteUserFiles(long uid, long fid);
 
     FilesDTO getFilesById(long fid);
@@ -43,21 +45,11 @@ public interface FilesService {
 
     Boolean saveOriginFiles(OriginFile originFile);
 
-    //Boolean mkdirs(Folders folders);
-
     OriginFile insertFolder(Files files);
 
     OriginFile insertFiles(List<HardDiskDevice> hardDiskDevices, Files file, MultipartFile tempFile) throws IOException;
 
-    List<HardDiskDevice> hardDevices();
-
-    Boolean saveHardDevice(HardDiskDevice hardDiskDevice);
-
-    Boolean deleteHardDevice(HardDiskDevice hardDiskDevice);
-
-    List<HashMap<String, String>> PatternData();
-
-    Files getByType(User user, Type type);
+    List<FilesDTO> getByType(User user, Type type);
 
     List<FilesDTO> searchFiles(FilesDTO filesDTO,User user);
 

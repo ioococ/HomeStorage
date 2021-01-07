@@ -39,8 +39,6 @@ public class ShiroRealm extends AuthorizingRealm {
                 permissions.add(permission.getName());
             }
         }
-        System.out.println(stringSet);
-        System.out.println(permissions);
         simpleAuthorizationInfo.setRoles(stringSet);
         simpleAuthorizationInfo.setStringPermissions(permissions);
         return simpleAuthorizationInfo;

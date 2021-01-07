@@ -36,34 +36,38 @@ public class UploadController {
     private String baseDir;
 
     @PostMapping("/uploadSlice")
-    public ResultBuilder<Boolean> uploadSliceFiles(@RequestParam("upload") MultipartFile multipartFile,
-                                                   @RequestParam("name") String fileName,
-                                                   @RequestParam("current") int curr) {
+    public ResultBuilder<Boolean> uploadSliceFiles(@RequestParam("file") MultipartFile multipartFile,
+                                                   @RequestParam("filename") String fileName,
+                                                   @RequestParam("chunkSize") int chunkSize,
+                                                   @RequestParam("totalChunks") int totalChunks,
+                                                   @RequestParam("identifier") String identifier,
+                                                   @RequestParam("chunkNumber") int chunkNumber,
+                                                   @RequestParam("path") String path) {
         User user = userService.getUser(SecurityUtils.getSubject().getPrincipal().toString());
-        Boolean result = uploadService.slice_upload(multipartFile, fileName, tmp, curr, user);
-        return new ResultBuilder(result, result ? StatusCode.SUCCESS : StatusCode.FALL);
+        Boolean result = uploadService.slice_upload(multipartFile, totalChunks,fileName, tmp,path, chunkNumber, user);
+        return new ResultBuilder<>(result, StatusCode.SUCCESS);
     }
 
     @PostMapping("/checkMd5")
-    public ResultBuilder<Boolean> checkMd5(@RequestParam("md5")String md5,
+    public ResultBuilder<Boolean> checkMd5(@RequestParam("md5") String md5,
                                            @RequestParam("name") String fileName,
-                                           @RequestParam("path")String parentName){
+                                           @RequestParam("path") String parentName) {
         User user = userService.getUser(SecurityUtils.getSubject().getPrincipal().toString());
-        Boolean result =uploadService.checkMd5AndTransfer(md5,parentName,fileName,user);
+        Boolean result = uploadService.checkMd5AndTransfer(md5, parentName, fileName, user);
         return new ResultBuilder(result, result ? StatusCode.SUCCESS : StatusCode.FALL);
     }
 
-    @PostMapping("/merge")
-    public ResultBuilder merge(@RequestParam("path") String filePath, @RequestParam("name") String fileName, @RequestParam("size") int size) {
-        User user = userService.getUser(SecurityUtils.getSubject().getPrincipal().toString());
-        Boolean result = uploadService.merge_upload(fileName, tmp, filePath, 0, size, user);
-        return new ResultBuilder(result, result ? StatusCode.SUCCESS : StatusCode.FALL);
-    }
+//    @PostMapping("/merge")
+//    public ResultBuilder merge(@RequestParam("path") String filePath, @RequestParam("name") String fileName, @RequestParam("size") int size) {
+//        User user = userService.getUser(SecurityUtils.getSubject().getPrincipal().toString());
+//        Boolean result = uploadService.merge_upload(fileName, tmp, filePath, 0, size, user);
+//        return new ResultBuilder(result, result ? StatusCode.SUCCESS : StatusCode.FALL);
+//    }
 
     @PostMapping("common_upload")
-    public ResultBuilder upload(@RequestParam("upload") MultipartFile multipartFile,@RequestParam("parentName")String parentName) {
+    public ResultBuilder upload(@RequestParam("upload") MultipartFile multipartFile, @RequestParam("parentName") String parentName) {
         User user = userService.getUser(SecurityUtils.getSubject().getPrincipal().toString());
-        uploadService.common_upload(multipartFile,parentName,user);
+        uploadService.common_upload(multipartFile, parentName, user);
         return null;
     }
 

@@ -2,6 +2,9 @@ package cn.j.netstorage.Service;
 
 import cn.j.netstorage.Entity.File.HardDiskDevice;
 
+import java.util.HashMap;
+import java.util.List;
+
 public interface HardDeviceService {
 
     Boolean update(HardDiskDevice hardDiskDevice);
@@ -13,5 +16,11 @@ public interface HardDeviceService {
     Boolean move(HardDiskDevice hardDiskDevice1,HardDiskDevice hardDiskDevice2);
 
     HardDiskDevice get();
+
+    HardDiskDevice get(Long id);
+
+    List<HardDiskDevice> getHardDevices();
+
+    List<HashMap<String,String>> getSpace();
 
 }

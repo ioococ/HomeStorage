@@ -13,6 +13,7 @@ import cn.j.netstorage.Mapper.OriginFileMapper;
 import cn.j.netstorage.Mapper.UserMapper;
 import cn.j.netstorage.Service.Aria2Service;
 import cn.j.netstorage.Service.FilesService;
+import cn.j.netstorage.Service.HardDeviceService;
 import cn.j.netstorage.tool.Aria2Http;
 import cn.j.netstorage.tool.FilesUtil;
 import cn.j.netstorage.tool.HttpUtil;
@@ -45,6 +46,8 @@ public class Aria2ServiceImpl implements Aria2Service {
 
     @Autowired
     OriginFileMapper originFileMapper;
+    @Autowired
+    HardDeviceService hardDeviceService;
 
     private String[] rowName = new String[]{"gid",
             "totalLength",
@@ -160,8 +163,8 @@ public class Aria2ServiceImpl implements Aria2Service {
 
             String base64code = new BASE64Encoder().encode(buffer);
             //随机存储位置
-            List<HardDiskDevice> hardDiskDevices = filesService.hardDevices();
-            HardDiskDevice hardDiskDevice = hardDiskDevices.get(new Random().nextInt(hardDiskDevices.size()));
+            HardDiskDevice hardDiskDevice = hardDeviceService.get();
+//            HardDiskDevice hardDiskDevice = hardDiskDevices.get(new Random().nextInt(hardDiskDevices.size()));
             //传参
             HashMap<String, String> hashMap = new HashMap<>();
             hashMap.put("dir", hardDiskDevice.getFolderName());

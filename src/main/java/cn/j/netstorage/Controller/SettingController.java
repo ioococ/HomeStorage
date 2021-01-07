@@ -6,6 +6,7 @@ import cn.j.netstorage.Entity.User.Role;
 import cn.j.netstorage.Entity.User.User;
 import cn.j.netstorage.Entity.Vo.UserVo;
 import cn.j.netstorage.Service.FilesService;
+import cn.j.netstorage.Service.HardDeviceService;
 import cn.j.netstorage.Service.UserService;
 import cn.j.netstorage.tool.FilesUtil;
 import cn.j.netstorage.tool.ResultBuilder;
@@ -28,22 +29,25 @@ public class SettingController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    HardDeviceService hardDeviceService;
+
     @GetMapping("DiskStatus")
     @RequiresRoles(value = {"admin"})
     public ResultBuilder<List<HardDiskDevice>> hardDiskDeviceResultBuilder() {
-        return new ResultBuilder<>(filesService.hardDevices(), StatusCode.SUCCESS);
+        return new ResultBuilder<>(hardDeviceService.getHardDevices(), StatusCode.SUCCESS);
     }
 
     @GetMapping("/hard_Devices")
     @RequiresRoles(value = {"admin"})
     public ResultBuilder<List<HardDiskDevice>> hardDiskDevices() {
-        return new ResultBuilder<>(filesService.hardDevices(), StatusCode.SUCCESS);
+        return new ResultBuilder<>(hardDeviceService.getHardDevices(), StatusCode.SUCCESS);
     }
 
     @PostMapping("/insertHardDevices")
     @RequiresRoles(value = {"admin"})
     public ResultBuilder<Boolean> hardDiskDevices(@RequestBody HardDiskDevice hardDiskDevice) {
-        return new ResultBuilder<>(filesService.saveHardDevice(hardDiskDevice), StatusCode.SUCCESS);
+        return new ResultBuilder<>(hardDeviceService.add(hardDiskDevice), StatusCode.SUCCESS);
     }
 
     @PostMapping("/deleteHardDevice")
@@ -51,13 +55,13 @@ public class SettingController {
     public ResultBuilder<Boolean> hardDiskDevices(String id) {
         HardDiskDevice hardDiskDevice = new HardDiskDevice();
         hardDiskDevice.setId(Long.valueOf(id));
-        return new ResultBuilder<>(filesService.deleteHardDevice(hardDiskDevice), StatusCode.SUCCESS);
+        return new ResultBuilder<>(hardDeviceService.del(hardDiskDevice), StatusCode.SUCCESS);
     }
 
     @GetMapping("/PatternData")
     @RequiresRoles(value = {"admin"})
     public ResultBuilder<List<HashMap<String,String>>> PatternData(){
-        return new ResultBuilder<>(filesService.PatternData(), StatusCode.SUCCESS);
+        return new ResultBuilder<>(hardDeviceService.getSpace(), StatusCode.SUCCESS);
     }
 
     @GetMapping("/users")

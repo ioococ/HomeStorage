@@ -5,13 +5,16 @@ import cn.j.netstorage.Entity.DTO.OriginFileDTO;
 import cn.j.netstorage.Entity.File.Files;
 import cn.j.netstorage.Entity.File.HardDiskDevice;
 import cn.j.netstorage.Entity.File.OriginFile;
+import cn.j.netstorage.Entity.Folder;
 import cn.j.netstorage.Entity.Type;
 import cn.j.netstorage.Entity.User.User;
 import cn.j.netstorage.Mapper.FileMapper;
 import cn.j.netstorage.Mapper.HardDeviceMapper;
 import cn.j.netstorage.Mapper.OriginFileMapper;
 import cn.j.netstorage.Mapper.UserMapper;
+import cn.j.netstorage.Service.FileService2;
 import cn.j.netstorage.Service.FilesService;
+import cn.j.netstorage.Service.UserService;
 import cn.j.netstorage.tool.FilesUtil;
 import cn.j.netstorage.tool.HashCodeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +43,13 @@ public class FileServiceImpl implements FilesService {
     @Autowired
     OriginFileMapper originFileMapper;
 
+    @Autowired
+    private FileService2 fileService2;
+
+    @Autowired
+    private UserService userService;
+
+
     @Override
     public Boolean insertFile() {
         return null;
@@ -60,20 +70,40 @@ public class FileServiceImpl implements FilesService {
      */
     @Override
     public List<FilesDTO> UserFiles(String path, long uid, Boolean isDir) {
+        //先查这个文件夹是不是在共享列表里 如果是就将他的parentName,selfName originUser提取出来
+        //如果没有直接查
 
-        Files files = new Files();
-        files.setParentName(path);
-        User user = new User();
-        user.setUid(uid);
-        files.setUser(Collections.singletonList(user));
-
+        User user = userService.getUser(uid);
+        Folder folder = fileService2.getFolder(user, path);
+        if (folder != null) {
+            user = folder.getOriginUser().iterator().next();
+        } else {
+            user = FilesUtil.setUser(uid);
+        }
         List<FilesDTO> files1 = new ArrayList<>();
         Short is_dir = isDir ? Files.is_dir : Files.no_dir;
-        fileMapper.findAllByParentNameAndUser_uidAndIsDir(path, (uid), is_dir).forEach((value) -> {
+        fileMapper.findAllByParentNameAndUser_uidAndIsDir(path, (user.getUid()), is_dir).forEach((value) -> {
             FilesDTO filesDTO = new FilesDTO(value);
             files1.add(filesDTO);
         });
         return files1;
+    }
+
+    @Override
+    public List<FilesDTO> UserFile(Long fid, long uid) {
+        List<Files> files = fileService2.files(fid);
+        if (files == null || files.size() < 1) {
+            return null;
+        }
+        Files file = files.get(0);
+        String path = file.getParentName() + file.getSelfName() + "/";
+        User user = userService.getUser(uid);
+        Folder folder = fileService2.getFolder(file);
+        if (folder != null) {
+            return UserFile(path, folder.getOriginUser().iterator().next().getUid());
+        } else {
+            return UserFile(path, uid);
+        }
     }
 
 
@@ -110,8 +140,6 @@ public class FileServiceImpl implements FilesService {
 
     @Override
     public OriginFile findByParentNameAndAndUserAndAndSelfName(String parentName, User user, String selfName) {
-        System.out.println(parentName);
-        System.out.println(selfName);
         Files files = fileMapper.findByParentNameAndAndUserAndAndSelfName(parentName, user, selfName);
         return files.getOriginFile() != null ? new ArrayList<OriginFile>(files.getOriginFile()).get(0) : new OriginFile();
     }
@@ -139,39 +167,9 @@ public class FileServiceImpl implements FilesService {
      * @return 上传结果
      */
 
-    private Files trySearchFileExist(Files files, Files file, String fileName_, String exg) {
-        String str = "";
-        int i = 0;
-        do {
-            if (i == 0)
-                str = fileName_ + exg;
-            else
-                str = String.format(fileName_ + "(%s)" + exg, i);
-            file.setSelfName(str);
-            i++;
-            files = fileMapper.findByParentNameAndAndUserAndAndSelfName(file.getParentName(), file.getUser().get(0), file.getSelfName());
-        } while (files != null);
-        return file;
-    }
-
-    private Files trySearchFolderExist(Files files, Files file, String fileName_) {
-        String str = "";
-        int i = 0;
-        do {
-            if (i == 0)
-                str = fileName_;
-            else
-                str = String.format(fileName_ + "(%s)", i);
-            file.setSelfName(str);
-            i++;
-            files = fileMapper.findByParentNameAndAndUserAndAndSelfName(file.getParentName(), file.getUser().get(0), file.getSelfName());
-        } while (files != null);
-        return file;
-    }
 
     @Override
     public OriginFile insertFolder(Files file) {
-        trySearchFolderExist(null, file, file.getSelfName());
         OriginFile originFile = originFileMapper.getOriginFileByFileName("FileType");
         if (originFile == null || originFile.getOid() == 0) {
             originFile = new OriginFile();
@@ -193,7 +191,6 @@ public class FileServiceImpl implements FilesService {
         int randomInt = new Random().nextInt(hardDiskDevices.size());
         HardDiskDevice hardDiskDevice = hardDiskDevices.get(randomInt);
 
-        trySearchFileExist(null, file, fileName_, exg);
         String ext = file.getSelfName().substring(file.getSelfName().lastIndexOf(".") + 1);
         String fileName = FilesUtil.getCurrentNameWithExt("." + ext);
 
@@ -299,7 +296,7 @@ public class FileServiceImpl implements FilesService {
     @Override
     @Transactional
     public Boolean deleteFolders(String parentName, String selfName, Long fid, Long uid) {
-        return fileMapper.deleteAllByFidIsOrParentNameIsLike(fid, parentName + selfName + "/%") > 0 && this.deleteUserFiles(uid, fid);
+        return fileMapper.deleteAllByFidIsOrParentNameIsLikeAndUser(fid, parentName + selfName + "/%", FilesUtil.setUser(uid)) > 0 && this.deleteUserFiles(uid, fid);
     }
 
     @Override
@@ -313,44 +310,15 @@ public class FileServiceImpl implements FilesService {
         return originFile1.getOid() != 0;
     }
 
-    @Override
-    public List<HardDiskDevice> hardDevices() {
-        return hardDeviceMapper.findAll();
-    }
 
     @Override
-    public Boolean saveHardDevice(HardDiskDevice hardDiskDevice) {
-        return hardDeviceMapper.save(hardDiskDevice).getId() != 0;
-    }
-
-    @Override
-    public Boolean deleteHardDevice(HardDiskDevice hardDiskDevice) {
-        return FilesUtil.delete(hardDeviceMapper, hardDiskDevice);
-    }
-
-    @Override
-    public List<HashMap<String, String>> PatternData() {
-        File[] roots = File.listRoots();// 获取磁盘分区列表
-        List<HashMap<String, String>> mapList = new ArrayList<>();
-        for (File file : roots) {
-            HashMap<String, String> hashMap = new HashMap<String, String>();
-            long free = file.getFreeSpace();
-            long total = file.getTotalSpace();
-            long use = total - free;
-            hashMap.put("PatternPath", file.getPath());
-            hashMap.put("free", change(free) + "G");
-            hashMap.put("used", change(use) + "G");
-            hashMap.put("total", change(total) + "G");
-            hashMap.put("bfb", bfb(use, total));
-            mapList.add(hashMap);
-        }
-        return mapList;
-    }
-
-    @Override
-    public Files getByType(User user, Type type) {
-        type.getType();
-        return null;
+    public List<FilesDTO> getByType(User user, Type type) {
+        List<Files> files = fileMapper.findByUserAndType(user, type.getType());
+        List<FilesDTO> filesDTOList = new ArrayList<>();
+        files.forEach(value -> {
+            filesDTOList.add(new FilesDTO(value));
+        });
+        return filesDTOList;
     }
 
     @Override
@@ -360,21 +328,6 @@ public class FileServiceImpl implements FilesService {
         return filesDTOS;
     }
 
-    public static long change(long num) {
-        // return num;
-        return num / 1024 / 1024 / 1024;
-    }
-
-    private static String bfb(Object num1, Object num2) {
-        double val1 = Double.valueOf(num1.toString());
-        double val2 = Double.valueOf(num2.toString());
-        if (val2 == 0) {
-            return "0.0%";
-        } else {
-            DecimalFormat df = new DecimalFormat("#0.00");
-            return df.format(val1 / val2 * 100) + "%";
-        }
-    }
 
 //
 //    @Override

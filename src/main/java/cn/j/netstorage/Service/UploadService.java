@@ -8,7 +8,7 @@ public interface UploadService {
 
     Boolean common_upload(MultipartFile uploadFile, String storagePath, User user);
 
-    Boolean slice_upload(MultipartFile file, String fileName, String dst, int currentIndex, User user);
+    Boolean slice_upload(MultipartFile file, int size, String fileName, String dst, String storagePath, int currentIndex, User user);
 
     Boolean exist_upload(String filePath, String storagePath, User user);
 
